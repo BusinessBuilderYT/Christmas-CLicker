@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Christmas Clicker</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+
+    #bgVideo {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-shadow: 0 0 5px black;
+      background: black;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      user-select: none;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      margin: 5px 0;
+      width: 150px;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      transition: background-color 0.3s, filter 0.15s;
+      user-select: none;
+    }
+
+    button:hover {
+      filter: brightness(110%);
+    }
+
+    #incrementBtn {
+      background-color: #28a745;
+    }
+    #incrementBtn:hover {
+      background-color: #218838;
+    }
+
+    #resetBtn {
+      background-color: #dc3545;
+    }
+    #resetBtn:hover {
+      background-color: #c82333;
+    }
+
+    /* Floating numbers */
+    .floating-number {
+      position: absolute;
+      font-size: 1.2rem;
+      font-weight: bold;
+      user-select: none;
+      pointer-events: none;
+      white-space: nowrap;
+      animation: floatUpFade 2s forwards;
+    }
+
+    .plus { color: #7fff7f; }
+    .minus { color: #ff7f7f; }
+
+    @keyframes floatUpFade {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-80px); }
+    }
+
+    /* Achievement + Shop buttons */
+    #achievementsBtn, #shopBtn {
+      position: fixed;
+      top: 15px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.8);
+      border: none;
+      cursor: pointer;
+      font-size: 22px;
+      color: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 8px rgba(0,0,0,0.3);
+      transition: background-color 0.3s;
+      z-index: 1000;
+    }
+    #achievementsBtn:hover, #shopBtn:hover {
+      background-color: rgba(255, 255, 255, 1);
+    }
+    #achievementsBtn { right: 80px; }
+    #shopBtn { right: 15px; }
+
+    /* Panels */
+    #achievementsPanel, #shopPanel {
+      position: fixed;
+      top: 70px;
+      right: 15px;
+      width: 320px;
+      max-height: 420px;
+      background-color: rgba(0,0,0,0.85);
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.7);
+      overflow-y: auto;
+      color: white;
+      font-size: 1rem;
+      display: none;
+      z-index: 999;
+      user-select: none;
+    }
+
+    #achievementsPanel h2, #shopPanel h2 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      padding-bottom: 6px;
+      font-size: 1.4rem;
+      text-align: center;
+    }
+
+    /* Achievements */
+    .achievement {
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 6px;
+      background-color: #555;
+      color: #ccc;
+      transition: 0.25s;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .achievement.unlocked {
+      background-color: #28a745;
+      color: #ff0000;
+      font-weight: 700;
+    }
+
+    .achievement.unlocked.christmas {
+      background-color: #28a745;
+      color: #ff0000;
+    }
+    .achievement.unlocked.valentines {
+      background-color: #ffc0cb;
+      color: #ff0000;
+    }
+    .achievement.unlocked.thanksgiving {
+      background-color: #ffeb3b;
+      color: #6d4c41;
+    }
+    .achievement.unlocked.birthday904 {
+      background-color: #2196f3;
+      color: #ff0000;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.85);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      font-weight: 600;
+      display: none;
+      z-index: 2000;
+      text-align: center;
+      min-width: 250px;
+    }
+  </style>
+</head>
+<body>
+
+  <video id="bgVideo" autoplay muted loop playsinline>
+    <source src="XmasThemeBgMyGame.mp4" type="video/mp4">
+  </video>
+
+  <h1>
+    <span style="color:red;">C</span><span style="color:green;">O</span><span style="color:red;">U</span><span style="color:green;">N</span><span style="color:red;">T</span><span style="color:green;">E</span><span style="color:red;">R</span><span style="color:green;">:</span>
+    <span id="count" style="color:red;">0</span>
+  </h1>
+
+  <button id="incrementBtn">Click me!</button>
+  <button id="resetBtn">Reset</button>
+
+  <button id="achievementsBtn" title="Achievements">🏆</button>
+  <button id="shopBtn" title="Shop">🛒</button>
+
+  <div id="achievementsPanel">
+    <h2>Achievements</h2>
+    <div id="achievementList"></div>
+  </div>
+
+  <div id="shopPanel">
+    <h2>Shop</h2>
+    <div id="shopItems"></div>
+  </div>
+
+  <div id="toast"></div>
+
+  <audio id="bgMusic" src="MyGameChristmasThemeSongs.m4a" loop></audio>
+
+  <script>
+    const incrementBtn = document.getElementById('incrementBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const countSpan = document.getElementById('count');
+    const achievementsBtn = document.getElementById('achievementsBtn');
+    const achievementsPanel = document.getElementById('achievementsPanel');
+    const shopBtn = document.getElementById('shopBtn');
+    const shopPanel = document.getElementById('shopPanel');
+    const achievementList = document.getElementById('achievementList');
+    const shopItems = document.getElementById('shopItems');
+    const toast = document.getElementById('toast');
+    const bgMusic = document.getElementById('bgMusic');
+
+    let counter = 0;
+    let musicStarted = false;
+    let clicksPerClick = 1;
+    let resetCount = 0;
+    let unlockedAchievements = [];
+
+    const achievements = [
+      { id: 'reset_first_time', name: 'Restarting already?!', desc: 'Reset your numbers for the first time.', check: () => resetCount > 0 },
+      { id: 'reach_1111', name: 'We all respect the soldiers', desc: 'Reach 1111 clicks.', check: () => counter >= 1111 },
+      { id: 'reach_904', name: "Hey that's my birthday!", desc: 'Reach 904 clicks.', check: () => counter >= 904, specialClass: 'birthday904' },
+      { id: 'reach_1000000', name: 'HOW LONG HAVE YOU BEEN CLICKING FOR?!', desc: 'Reach 1,000,000 clicks.', check: () => counter >= 1000000 },
+      { id: 'reach_666', name: "that's not the devil's number that's gods number -Chris", desc: 'Reach 666 clicks.', check: () => counter >= 666 },
+      { id: 'reach_67', name: "I CAN'T ESCAPE IT!", desc: 'Reach 67 clicks.', check: () => counter >= 67 },
+      { id: 'reach_1127', name: 'HAPPY THANKSGIVING', desc: 'Reach 1127 clicks.', check: () => counter >= 1127, specialClass: 'thanksgiving' },
+      { id: 'valentines_day', name: 'Aww do u love someone?', desc: "Reach Valentine's Day number (214).", check: () => counter >= 214, specialClass: 'valentines' },
+      { id: 'first_click', name: 'nooby!', desc: 'Click for the first time.', check: () => counter >= 1 },
+      { id: 'reach_100000', name: 'just nine hundred thousand more until a secret achievement', desc: 'Reach 100,000 clicks.', check: () => counter >= 100000 },
+      { id: 'christmas_1225', name: 'Christmas Date', desc: 'Reach 1225 clicks.', check: () => counter >= 1225, specialClass: 'christmas' }
+    ];
+
+    const shop = [
+      { id: 'buddy_elf', name: 'Buddy The Elf', cost: 1000, desc: '+2 clicks per click', bought: false }
+    ];
+
+    function startMusicIfNeeded() {
+      if (!musicStarted) {
+        bgMusic.play().catch(()=>{});
+        musicStarted = true;
+      }
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.style.display = 'block';
+      toast.style.opacity = '1';
+      setTimeout(()=>{ toast.style.opacity='0'; },2500);
+      setTimeout(()=>{ toast.style.display='none'; },3000);
+    }
+
+    function updateAchievementsUI() {
+      achievementList.innerHTML = '';
+      achievements.forEach(a=>{
+        const div = document.createElement('div');
+        div.classList.add('achievement');
+        if (unlockedAchievements.includes(a.id)) {
+          div.classList.add('unlocked');
+          if (a.specialClass) div.classList.add(a.specialClass);
+        }
+        div.innerHTML = `<div class="title">${a.name}</div><div class="desc">${a.desc}</div>`;
+        achievementList.appendChild(div);
+      });
+    }
+
+    function checkAchievements() {
+      achievements.forEach(a=>{
+        if (!unlockedAchievements.includes(a.id) && a.check()) {
+          unlockedAchievements.push(a.id);
+          updateAchievementsUI();
+          showToast(`🏆 Achievement unlocked: ${a.name}`);
+        }
+      });
+    }
+
+    function updateShopUI() {
+      shopItems.innerHTML = '';
+      shop.forEach(item=>{
+        const div = document.createElement('div');
+        div.style.margin='10px 0';
+        div.style.padding='10px';
+        div.style.background='rgba(255,255,255,0.1)';
+        div.style.borderRadius='6px';
+        div.innerHTML = `
+          <strong>${item.name}</strong> - ${item.desc}<br>
+          Cost: ${item.cost} clicks<br>
+          <button ${item.bought?'disabled':''}>${item.bought?'Bought':'Buy'}</button>
+        `;
+        const btn = div.querySelector('button');
+        btn.addEventListener('click', ()=>{
+          if (counter >= item.cost && !item.bought) {
+            counter -= item.cost;
+            countSpan.textContent = counter;
+            clicksPerClick = 2; // total of 2 per click
+            item.bought = true;
+            updateShopUI();
+            showToast(`🛒 Bought ${item.name}! (+2 clicks per click)`);
+          } else {
+            showToast("Not enough clicks!");
+          }
+        });
+        shopItems.appendChild(div);
+      });
+    }
+
+    function createFloatingNumber(text, color, x, y) {
+      const span = document.createElement('span');
+      span.className = 'floating-number';
+      span.textContent = text;
+      span.style.color = color;
+      span.style.left = x + 'px';
+      span.style.top = y + 'px';
+      document.body.appendChild(span);
+      setTimeout(()=>span.remove(),2000);
+    }
+
+    incrementBtn.addEventListener('click', e=>{
+      startMusicIfNeeded();
+      counter += clicksPerClick;
+      countSpan.textContent = counter;
+      const rect = e.target.getBoundingClientRect();
+      createFloatingNumber(`+${clicksPerClick}`, '#7fff7f', rect.left+rect.width/2, rect.top);
+      checkAchievements();
+    });
+
+    resetBtn.addEventListener('click', e=>{
+      startMusicIfNeeded();
+      if (counter === 0) return;
+      const rect = e.target.getBoundingClientRect();
+      createFloatingNumber(`-${counter}`, '#ff7f7f', rect.left+rect.width/2, rect.top);
+      counter = 0;
+      countSpan.textContent = counter;
+      resetCount++;
+      checkAchievements();
+    });
+
+    achievementsBtn.addEventListener('click',()=>{
+      shopPanel.style.display='none';
+      achievementsPanel.style.display = achievementsPanel.style.display==='block'?'none':'block';
+    });
+
+    shopBtn.addEventListener('click',()=>{
+      achievementsPanel.style.display='none';
+      shopPanel.style.display = shopPanel.style.display==='block'?'none':'block';
+      updateShopUI();
+    });
+
+    // clear achievements on refresh
+    window.addEventListener('beforeunload', ()=>{
+      unlockedAchievements = [];
+    });
+
+    updateAchievementsUI();
+  </script>
+</body>
+</html>
